@@ -6,7 +6,8 @@ const userSchema = new Schema({
   username: {type: String, required: true},
   email: {type: String, required: true}, 
   password: {type: String, required: true},
-  verified: {type: Boolean, default: false}
+  verified: {type: Boolean, default: false},
+  passwordExtra: {type: String, default: ""},
 })
 
 userSchema.pre('save', function (next) {

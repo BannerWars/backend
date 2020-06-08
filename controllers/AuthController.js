@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken')
 const mailgun = require("mailgun-js");
+const bcrypt = require('bcryptjs')
+var crypto = require("crypto");
 
 
 const User = require('../models/User')
@@ -24,8 +26,7 @@ router.post('/new', (req, res) => {
             mg.messages().send(data, function (error, body) {
                 console.log(body);
             });
-            const token = jwt.sign({ _id: user._id, email: user.email }, process.env.SECRET, { expiresIn: '60 days' })
-            res.json({ token, id: user._id })
+            res.status(200).send({message: "New user created!"})
         })
             .catch(err => console.log(err))
     })
@@ -53,6 +54,10 @@ router.post("/verify", (req, res) => {
 
 })
 
+// sends an email to a user requesting a password reset
+// The email contains a link to the website that when clicked on will bring them to a page they can update their password
+// TODO: Make this link more secure than /users/reset/:userid by adding salt on the end, saving that salt, and only allowing link to work if salt has been added
+
 router.post("/request-reset", (req, res) => {
     const { email } = req.body
     User.findOne({ email }).then(user => {
@@ -62,15 +67,20 @@ router.post("/request-reset", (req, res) => {
 
         const DOMAIN = process.env.mailgunDomain
         const mg = mailgun({ apiKey: process.env.mailgunKey, domain: DOMAIN })
+        var extra = crypto.randomBytes(20).toString('hex');
+
         const data = {
             from: 'Banner Wars Team <Support@BannerWars.com>',
             to: user.email,
             subject: "Password Reset",
-            text: `To reset your password, click the link below \n https://SomeDomainName.com/reset/${user._id} \n\n if you did not request a password reset, you can ignore this email`
+            text: `To reset your password, click the link below \n https://SomeDomainName.com/reset/${user._id}/${extra} \n\n if you did not request a password reset, you can ignore this email`
         }
         mg.messages().send(data, function (error, body) {
             console.log(body)
-            res.status(200).send({ message: "Recived" })
+            user.passwordExtra = extra
+            user.save().then(user => {
+                res.status(200).send({ message: "Recived" })
+            })
         })
 
     })
@@ -78,17 +88,25 @@ router.post("/request-reset", (req, res) => {
 
 })
 
+// Resets a users password. Currently can be used at any time
+// TODO: Only users that have requested a password reset can use this link
 router.post("/reset", (req, res) => {
-    const {userId, password} = req.body
+    const { userId, password, extra } = req.body
     User.findById(userId).then(user => {
-        user.password = password
-        user.save().then(user => {
-            res.status(200).send({ message: "Password Changed!"})
-        })
-    .catch(err => console.log(err))
+        if (user.passwordExtra != "" && extra == user.passwordExtra) {
+            user.password = password
+            user.passwordExtra = ""
+            user.save().then(user => {
+                res.status(200).send({ message: "Password Changed!" })
+            })
+                .catch(err => console.log(err))
+        }
+        else {
+            res.status(404).send({message: "An error has occured"})
+        }
 
     })
-    .catch(err => console.log(err))
+        .catch(err => console.log(err))
 })
 
 router.post('/login', (req, res) => {
@@ -115,6 +133,7 @@ router.post('/login', (req, res) => {
             console.log(err);
         });
 })
+
 
 
 module.exports = router
