@@ -7,7 +7,6 @@ const lobbySchema = new Schema({
     teams: { type: Array, default: [] },
     history: { type: Array, default: [] },
     users: [{ id: { type: String, required: true }, team: { type: String } }],
-    invites: [{email: {type: String, required: true}, expires:{type: Date, required: true}}]
 })
 
 module.exports = mongoose.model('Lobby', lobbySchema)
