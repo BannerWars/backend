@@ -1,6 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const mailgun = require("mailgun-js");
+const express = require('express')
+const router = express.Router()
+const mailgun = require("mailgun-js")
 const jwt = require('jsonwebtoken')
 
 
@@ -41,6 +41,7 @@ router.post("/new", (req, res) => {
     })
 
 })
+
 
 router.post("/new-invite", (req, res) => {
     const { token, lobbyId, email } = req.body
@@ -168,5 +169,7 @@ router.post("/accept-invite", (req, res) => {
         }).catch(err => console.log(err))
     })
 })
+
+
 
 module.exports = router

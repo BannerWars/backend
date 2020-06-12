@@ -12,6 +12,7 @@ const mongoose = require('mongoose')
 const index = require("./controllers/index")
 const AuthController = require("./controllers/AuthController")
 const LobbyController = require("./controllers/LobbyController")
+const UserController = require("./controllers/UserController")
 
 // middleware
 const app = express()
@@ -25,6 +26,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 app.use(index)
 app.use('/users', AuthController)
+app.use('/users', UserController)
 app.use('/lobby', LobbyController)
 
 // server
