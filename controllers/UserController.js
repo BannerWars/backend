@@ -18,7 +18,7 @@ router.get("/lobbies", (req, res) => {
         const { _id: id } = decoded
 
         Lobby.find({ "users.id": id }).then(lobbies => {
-            res.send(lobbies)
+            res.status(200).json(lobbies)
         })
 
 
