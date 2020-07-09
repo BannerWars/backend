@@ -80,7 +80,9 @@ router.post("/new-invite", (req, res) => {
                         invite.save().then(invite => {
                             const inviteId = invite._id
                             User.findOne({ email }).then(newUser => {
-                                existingUser = lobby.users.filter(user => newUser.email == email)[0]
+                                console.log(newUser)
+                                existingUser = lobby.users.filter(user => user.email == email)[0]
+                                console.log(existingUser)
                                 if (existingUser) {
                                     Invite.findByIdAndDelete(invite._id).then(invite => {
                                         return res.status(401).json({ message: "User already in lobby" })
@@ -156,7 +158,7 @@ router.post("/accept-invite", (req, res) => {
                         }).catch(err => console.log(err))
                     }
 
-                    lobby.users.push({ id: userId })
+                    lobby.users.push({ id: userId, team: "" })
                     lobby.save().then(lobby => {
                         Invite.findByIdAndDelete(inviteId).then((invite) => {
                             res.status(200).json({ message: "Successfully joined team" })

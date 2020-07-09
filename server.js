@@ -13,6 +13,7 @@ const index = require("./controllers/index")
 const AuthController = require("./controllers/AuthController")
 const LobbyController = require("./controllers/LobbyController")
 const UserController = require("./controllers/UserController")
+const TeamController = require("./controllers/TeamController")
 
 // middleware
 const app = express()
@@ -28,6 +29,7 @@ app.use(index)
 app.use('/users', AuthController)
 app.use('/users', UserController)
 app.use('/lobby', LobbyController)
+app.use('/team', TeamController)
 
 // server
 const server = http.createServer(app);
