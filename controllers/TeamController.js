@@ -41,4 +41,37 @@ router.post("/new", (req, res) => {
     })
 })
 
+router.post("/join", (req, res) => {
+    const { token, lobbyId, teamName } = req.body
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+        if (err) {
+            res.status(401).json({ message: err.message })
+            return console.log(err)
+        }
+        const { _id: id } = decoded
+
+        Lobby.findById(lobbyId).then(lobby => {
+
+            currentUser = lobby.users.filter(lobbyUser => lobbyUser.id == id)[0]
+            if(!currentUser) {
+                return res.status(401).json({message:"user not in lobby"})
+            }
+
+            team = lobby.teams.filter(team => team.name == teamName)[0]
+            if(!team) {
+                res.status(404).json({message: "team does not exist"})
+            }
+
+            currentUser.team = teamName
+            lobby.markModified("users")
+            lobby.save().then(lobby => res.status(200).json({message: "team joined"})).catch(err => console.log(err))
+        }).catch(err => console.log(err))
+
+        
+
+
+
+    })
+})
+
 module.exports = router
