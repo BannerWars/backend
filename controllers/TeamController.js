@@ -18,13 +18,16 @@ router.post("/new", (req, res) => {
         const { _id: id } = decoded
 
         User.findById(id).then(user => {
-            console.log(user)
             Lobby.findById(lobbyId).then(lobby => {
-                console.log(lobby)
+                // console.log(lobby)
 
                 currentUser = lobby.users.filter(lobbyUser => lobbyUser.id == user._id)[0]
                 if(!currentUser) {
                     return res.status(401).json({message:"user not in lobby"})
+                }
+                currentTeam = lobby.teams.filter(team => team.name == teamName)
+                if (currentTeam.length > 0) {
+                    return res.status(401).json({message: "team name taken"})
                 }
                 lobby.teams.push({name: teamName, banners: [teamName]})
                 currentUser.team = teamName
