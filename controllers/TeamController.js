@@ -59,19 +59,58 @@ router.post("/join", (req, res) => {
 
             team = lobby.teams.filter(team => team.name == teamName)[0]
             if(!team) {
-                res.status(404).json({message: "team does not exist"})
+                return res.status(404).json({message: "team does not exist"})
             }
 
             currentUser.team = teamName
             lobby.markModified("users")
             lobby.save().then(lobby => res.status(200).json({message: "team joined"})).catch(err => console.log(err))
         }).catch(err => console.log(err))
+    })
+})
 
-        
+router.post("/steal", (req, res) => {
+    const { token, lobbyId, teamName, banner } = req.body
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+        if (err) {
+            res.status(401).json({ message: err.message })
+            return console.log(err)
+        }
+        const { _id: id } = decoded
 
+        Lobby.findById(lobbyId).then(lobby => {
 
+            currentUser = lobby.users.filter(lobbyUser => lobbyUser.id == id)[0]
+            if(!currentUser) {
+                return res.status(401).json({message:"user not in lobby"})
+            }
+            if(!currentUser.team) {
+                return res.status(401).json({message:"user not in a team"})
+            }
+
+            team = lobby.teams.filter(team => team.name == teamName)[0]
+            if(!team) {
+                return res.status(404).json({message: "team does not exist"})
+            }
+
+            flagIndex = team.banners.reduce((r, flag, i) => flag == banner? i : r, -1)
+            if(flagIndex == -1) {
+                return res.status(404).json({message: "team does not have banner"})
+            }
+
+            new_banner = team.banners.splice(flagIndex, 1)[0]
+
+            userTeam = lobby.teams.filter(team => team.name == currentUser.team)[0]
+            userTeam.banners.push(new_banner)
+            lobby.markModified("teams")
+            lobby.save().then(lobby => {
+                res.status(200).json({message: "banner stolen"})
+            })
+            
+        })
 
     })
+
 })
 
 module.exports = router
