@@ -42,6 +42,15 @@ router.post("/new", (req, res) => {
 
 })
 
+router.get("/single/:id", (req, res) => {
+    Lobby.findById(req.params.id).then(lobby => {
+        if(!lobby) {
+            return res.status(404).json({message: "lobby not found"})
+        }
+        res.status(200).json(lobby)
+    })
+})
+
 
 router.post("/new-invite", (req, res) => {
     const { token, lobbyId, email } = req.body

@@ -26,7 +26,7 @@ router.post('/new', (req, res) => {
             mg.messages().send(data, function (error, body) {
                 console.log(body);
             });
-            res.status(200).send({message: "New user created!"})
+            res.status(200).send({message: "new user created"})
         })
             .catch(err => console.log(err))
     })
