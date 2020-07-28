@@ -33,7 +33,7 @@ router.post("/new", (req, res) => {
                 currentUser.team = teamName
                 lobby.markModified("users")
                 lobby.save().then(lobby => {
-                    res.status(200).json({message: "team created!"})
+                    res.status(200).json({message: "team created"})
                 }).catch(err => console.log(err))
             }).catch(err => console.log(err))
         }).catch(err => console.log(err))
