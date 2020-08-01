@@ -29,7 +29,7 @@ router.post("/new", (req, res) => {
 
                 lobby = new Lobby({ name, owner })
 
-                lobby.users.push({ id: owner, team: "" })
+                lobby.users.push({ id: owner, team: "", username: user.username })
 
                 lobby.save().then(lobby => {
 
@@ -167,7 +167,7 @@ router.post("/accept-invite", (req, res) => {
                         }).catch(err => console.log(err))
                     }
 
-                    lobby.users.push({ id: userId, team: "" })
+                    lobby.users.push({ id: userId, team: "", username: user.username })
                     lobby.save().then(lobby => {
                         Invite.findByIdAndDelete(inviteId).then((invite) => {
                             res.status(200).json({ message: "Successfully joined team" })
